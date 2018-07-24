@@ -24,6 +24,7 @@
   </div>
 </template>
 <script>
+  import * as config from '../config'
   export default {
     data() {
       return {
@@ -98,17 +99,37 @@
           .then(()=>{
             for (var i in this.images){
               //得到每张图片的base64，发请求
-              setTimeout(()=>{
-                this._toast('正在发送请求' + i)
-              },1000)
+              let data = {
+                app_key:'',
+                file:this.images[i],
+                file_name:parseInt(Math.random()*100000)
+              }
+              this.ajax({
+                url:config.URL_IMG_UPLOAD,
+                data:data,
+                callback:res => {
+                  if (res.ret == 200){
+                    if (res.data.err_code == 1){
+                      this._toast(res.data.err_msg)
+                    }else {
+                      console.log(res.data)
+                    }
+                  }else {
+                    this._toast(res.msg)
+                  }
+                },
+                errorback:err => {
+
+                }
+              })
             }
             this.time = 60
             let int = setInterval(()=>{
               this.time --
               this.uploadImgStatus = false
               if (this.time == 0){
-                this.uploadImgStatus = true
                 clearInterval(int)
+                this.uploadImgStatus = true
               }
             },1000)
           })
